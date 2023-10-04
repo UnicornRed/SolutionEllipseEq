@@ -23,24 +23,24 @@ double SolutionEllipseEq::valueLu(size_t i, size_t j, const std::vector<double>&
                    q[i - 1 + j * (N - 1)] * (v[i + (j + 1) * (N + 1)] - v[i + j * (N + 1)]) / (hY * hY) - 
                    q[i - 1 + (j - 1) * (N - 1)] * (v[i + j * (N + 1)] - v[i + (j - 1) * (N + 1)]) / (hY * hY);
 
-    #ifdef DEBUG
-        std::cout << "valueLu: (" << i << ", " << j << ") - " << value << "\nv: " << std::endl;
+#ifdef DEBUG
+    std::cout << "valueLu: (" << i << ", " << j << ") - " << value << "\nv: " << std::endl;
 
-        for (const auto& i : v)
-            std::cout << i << " ";
+    for (const auto& i : v)
+        std::cout << i << " ";
 
-        std::cout << "\np: " << std::endl;
+    std::cout << "\np: " << std::endl;
 
-        for (const auto& i : p)
-            std::cout << i << " ";
+    for (const auto& i : p)
+        std::cout << i << " ";
 
-        std::cout << "\nq: " << std::endl;
+    std::cout << "\nq: " << std::endl;
 
-        for (const auto& i : q)
-            std::cout << i << " ";
+    for (const auto& i : q)
+        std::cout << i << " ";
 
-        std::cout << std::endl;
-    #endif
+    std::cout << std::endl;
+#endif
 
     return value;
 }
@@ -79,6 +79,22 @@ double SolutionEllipseEq::NormOfError(const std::vector<double>& v1, const std::
         NormEr[i] -= v2[i];
 
     return VectorNorm(NormEr);
+}
+
+void SolutionEllipseEq::NewStep(size_t _N, size_t _M)
+{
+    N = _N;
+    M = _M;
+    k = 0;
+    u.clear();
+    u_k.clear();
+    u0.clear();
+    uExSol.clear();
+    p.clear();
+    q.clear();
+    f.clear();
+
+    setStep();
 }
 
 void SolutionEllipseEq::setStep()
@@ -124,57 +140,57 @@ void SolutionEllipseEq::setStep()
         for (size_t i{}; i < N - 1; ++i)
             f[i + j * (N - 1)] = fFunc(hX * (i + 1), hY * (j + 1));
 
-    #ifdef DEBUG
-        std::cout << "u:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << u[i + j * (N + 1)] << ";";
-            
-            std::cout << std::endl;
-        }
+#ifdef DEBUG
+    std::cout << "u:\n";
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        for (size_t i{}; i < N + 1; ++i)
+            std::cout << "(" << i << ", " << j << ") - " << u[i + j * (N + 1)] << ";";
+        
         std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-        std::cout << "uExSol:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << uExSol[i + j * (N + 1)] << ";";
-                            
-            std::cout << std::endl;
-        }
+    std::cout << "uExSol:\n";
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        for (size_t i{}; i < N + 1; ++i)
+            std::cout << "(" << i << ", " << j << ") - " << uExSol[i + j * (N + 1)] << ";";
+                        
         std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-        std::cout << "p:\n";
-        for (size_t j{1}; j < M; ++j)
-        {
-            for (size_t i{}; i < N; ++i)
-                std::cout << "(" << 0.5 + i << ", " << j << ") - " << p[i + (j - 1) * N] << ";";
-                            
-            std::cout << std::endl;
-        }
+    std::cout << "p:\n";
+    for (size_t j{1}; j < M; ++j)
+    {
+        for (size_t i{}; i < N; ++i)
+            std::cout << "(" << 0.5 + i << ", " << j << ") - " << p[i + (j - 1) * N] << ";";
+                        
         std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-        std::cout << "q:\n";
-        for (size_t j{}; j < M; ++j)
-        {
-            for (size_t i{1}; i < N; ++i)
-                std::cout << "(" << i << ", " << 0.5 + j << ") - " << q[(i - 1) + j * (N - 1)] << ";";
-                            
-            std::cout << std::endl;
-        }
+    std::cout << "q:\n";
+    for (size_t j{}; j < M; ++j)
+    {
+        for (size_t i{1}; i < N; ++i)
+            std::cout << "(" << i << ", " << 0.5 + j << ") - " << q[(i - 1) + j * (N - 1)] << ";";
+                        
         std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-        std::cout << "f:\n";
-        for (size_t j{}; j < M - 1; ++j)
-        {
-            for (size_t i{}; i < N - 1; ++i)
-                std::cout << "(" << i + 1 << ", " << j + 1 << ") - " << f[i + j * (N - 1)] << ";";
-                            
-            std::cout << std::endl;
-        }
+    std::cout << "f:\n";
+    for (size_t j{}; j < M - 1; ++j)
+    {
+        for (size_t i{}; i < N - 1; ++i)
+            std::cout << "(" << i + 1 << ", " << j + 1 << ") - " << f[i + j * (N - 1)] << ";";
+                        
         std::cout << std::endl;
-    #endif
+    }
+    std::cout << std::endl;
+#endif
 
     c1 = pFunc(0, 0);
     c2 = pFunc(0, 0);
@@ -279,17 +295,17 @@ bool SolutionEllipseEq::Next()
         for (size_t i{1}; i < N; ++i)
             u_k[i + j * (N + 1)] = nextUk(i, j);
 
-    #ifdef DEBUG
-        std::cout << "u_k:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << u_k[i + j * (N + 1)] << ";";
-            
-            std::cout << std::endl;
-        }
+#ifdef DEBUG
+    std::cout << "u_k:\n";
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        for (size_t i{}; i < N + 1; ++i)
+            std::cout << "(" << i << ", " << j << ") - " << u_k[i + j * (N + 1)] << ";";
+        
         std::cout << std::endl;
-    #endif
+    }
+    std::cout << std::endl;
+#endif
 
     roK = NormOfError(u, u_k) / diffUUPrev;
 
@@ -300,37 +316,27 @@ bool SolutionEllipseEq::Next()
     if (NormOfError(u, uExSol) / NormOfError(u0, uExSol) < epsilon)
         return true;
 
-    #ifdef DEBUG
-        std::cout << "u:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << u[i + j * (N + 1)] << ";";
-            
-            std::cout << std::endl;
-        }
+#ifdef DEBUG
+    std::cout << "u:\n";
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        for (size_t i{}; i < N + 1; ++i)
+            std::cout << "(" << i << ", " << j << ") - " << u[i + j * (N + 1)] << ";";
+        
         std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
-        std::cout << "uPrev:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << uPrev[i + j * (N + 1)] << ";";
-            
-            std::cout << std::endl;
-        }
+    std::cout << "uPrev:\n";
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        for (size_t i{}; i < N + 1; ++i)
+            std::cout << "(" << i << ", " << j << ") - " << u_k[i + j * (N + 1)] << ";";
+        
         std::cout << std::endl;
-
-        std::cout << "uPrevPrev:\n";
-        for (size_t j{}; j < M + 1; ++j)
-        {
-            for (size_t i{}; i < N + 1; ++i)
-                std::cout << "(" << i << ", " << j << ") - " << uPrevPrev[i + j * (N + 1)] << ";";
-            
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    #endif
+    }
+    std::cout << std::endl;
+#endif
 
     return false;
 }
@@ -350,9 +356,9 @@ double IOSUMethodSolElEq::culc_Delta()
     double sincosHelp, _Delta;
 
     sincosHelp = cos(M_PI * hX / (2 * maxX));
-    _Delta = c2 * 4 / (hX * hX) * (sincosHelp * sincosHelp);
+    _Delta = c2 * 4.0 / (hX * hX) * (sincosHelp * sincosHelp);
     sincosHelp = cos(M_PI * hY / (2 * maxY));
-    _Delta += d2 * 4 / (hY * hY) * (sincosHelp * sincosHelp);
+    _Delta += d2 * 4.0 / (hY * hY) * (sincosHelp * sincosHelp);
 
     return _Delta;
 }
@@ -580,7 +586,7 @@ GeneralTriangSolElEq::GeneralTriangSolElEq(double _maxX, double _maxY, size_t _N
 
 double GeneralTriangSolElEq::culc_Delta()
 {
-    return c2 * 4 / (hX * hX) + d2 * 4 / (hY * hY);
+    return c2 * 4.0 / (hX * hX) + d2 * 4.0 / (hY * hY);
 }
 
 double GeneralTriangSolElEq::culc_xi()
@@ -639,7 +645,7 @@ void AlterTriangSolElEq::preparing()
 
 size_t AlterTriangSolElEq::culc_m()
 {
-    return ceil(log(2.0 / epsilon) / (2 * std::sqrt(xi)));
+    return ceil(log(1.0 / epsilon) / log(1.0 / ro));
 }
 
 const std::string AlterTriangSolElEq::getNameMethod() const
@@ -684,8 +690,11 @@ const std::string ChebAltTriSolElEq::getNameMethod() const
 void ChebAltTriSolElEq::setParamK()
 {
     GeneralTriangSolElEq::setParamK();
-
+#ifdef DEBUG
+    std::cout << "Theta " << k << ": " << theta[(k - 1) % n] << "\n";
+#endif
     tau = 2.0 / (gamma_2 + gamma_1 + (gamma_2 - gamma_1) * std::cos(double(theta[(k - 1) % n]) / (2.0 * n) * M_PI));
+    // tau = 2.0 / (gamma_2 + gamma_1 + (gamma_2 - gamma_1) * std::cos(double(2 * k - 1) / (2.0 * n) * M_PI));
 }
 
 double ChebAltTriSolElEq::nextUk(size_t i, size_t j)

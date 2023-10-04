@@ -80,6 +80,8 @@ public:
     // Норма погрешности
     double NormOfError(const std::vector<double>& v1, const std::vector<double>& v2);
 
+    void NewStep(size_t _N, size_t _M);
+
     void printInfoLine(const std::string& format);
 
     void printGrid(const std::vector<double>& v);
