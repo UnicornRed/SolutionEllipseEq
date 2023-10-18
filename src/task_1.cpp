@@ -28,10 +28,20 @@ double fParam(double x, double y)
 //     return -2 * y * y - 2 * y * y * y - 2 * x * x - 6 * x * x * y;
 // }
 
+// double fParam(double x, double y)
+// {
+//     return 2 * std::sin(x) * std::cos(y);
+// }
+
 double uExactSolution(double x, double y)
 {
     return x * x * y * y * (1 + y);
 }
+
+// double uExactSolution(double x, double y)
+// {
+//     return std::sin(x) * std::cos(y);
+// }
 
 void WorkWithMethod(SolutionEq& MyEq)
 {
@@ -41,7 +51,7 @@ void WorkWithMethod(SolutionEq& MyEq)
 
     while (!MyEq.Next())
     {
-        if (MyEq.getK() < 5 || MyEq.getK() % MyEq.getN() == 0)
+        if (MyEq.getK() < 5 || MyEq.getK() % std::min(MyEq.getN(), MyEq.getM()) == 0)
             MyEq.printInfoLine();
     }
 
@@ -155,7 +165,7 @@ int main()
 
     // Попеременно-треугольный итерационный метод с чебышевским набором параметров
 
-    ChebAltTriSolElEq MyEqCA(maxX, maxY, N, M, pCoeff, qCoeff, fParam, uExactSolution, 2, epsilon);
+    ChebAltTriSolElEq MyEqCA(maxX, maxY, N, M, pCoeff, qCoeff, fParam, uExactSolution, 3, epsilon);
 
     WorkWithMethod(MyEqCA);
 

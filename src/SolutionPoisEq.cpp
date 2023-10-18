@@ -39,13 +39,7 @@ size_t SolutionPoisEq::culc_m()
 
 void SolutionPoisEq::setParamK()
 {
-    double A, B, C, G;
-
-    for (size_t i{}; i < N + 1; ++i)
-    {
-        uMiddle[i] = uExSol[i];
-        uMiddle[i + M * (N + 1)] = uExSol[i + M * (N + 1)];
-    }
+    double A, B, C, G, gamma;
 
     for (size_t j{1}; j < M; ++j)
     {
@@ -54,21 +48,22 @@ void SolutionPoisEq::setParamK()
         C = 0.0;
         G = uExSol[j * (N + 1)];
 
-        s[j * (N + 1)] = C / B;
-        t[j * (N + 1)] = - G / B;
+        s1[0] = C / B;
+        t1[0] = - G / B;
 
         for (size_t i{1}; i < N; ++i)
         {
-            A = tau * p[i - 1 + (j - 1) * (N - 1)] / (2.0 * hX * hX);
-            B = tau / 2.0 * (p[i - 1 + (j - 1) * (N - 1)] / (hX * hX) + p[i + (j - 1) * (N - 1)] / (hX * hX)) + 1.0;
-            C = tau * p[i + (j - 1) * (N - 1)] / (2.0 * hX * hX);
+            A = tau * p[i - 1 + (j - 1) * N] / (2.0 * hX * hX);
+            C = tau * p[i + (j - 1) * N] / (2.0 * hX * hX);
+            B = A + C + 1.0;
             G = -u[i + j * (N + 1)] - tau / 2.0 *
                 (q[i - 1 + j * (N - 1)] * (u[i + (j + 1) * (N + 1)] - u[i + j * (N + 1)]) / (hY * hY) - 
                  q[i - 1 + (j - 1) * (N - 1)] * (u[i + j * (N + 1)] - u[i + (j - 1) * (N + 1)]) / (hY * hY) +
                  f[i - 1 + (j - 1) * (N - 1)]);
 
-            s[i + j * (N + 1)] = C / (B - A * s[i - 1 + j * (N + 1)]);
-            t[i + j * (N + 1)] = (A * t[i - 1 + j * (N + 1)] - G) / (B - A * s[i - 1 + j * (N + 1)]);
+            gamma = B - A * s1[i - 1];
+            s1[i] = C / gamma;
+            t1[i] = (A * t1[i - 1] - G) / gamma;
         }
 
         A = 0.0;
@@ -76,43 +71,39 @@ void SolutionPoisEq::setParamK()
         C = 0.0;
         G = uExSol[N + j * (N + 1)];
 
-        s[N + j * (N + 1)] = C / (B - A * s[N - 1 + j * (N + 1)]);
-        t[N + j * (N + 1)] = (A * t[N - 1 + j * (N + 1)] - G) / (B - A * s[N - 1 + j * (N + 1)]);
+        gamma = B - A * s1[N - 1];
+        s1[N] = C / gamma;
+        t1[N] = (A * t1[N - 1] - G) / gamma;
 
-        uMiddle[N + j * (N + 1)] = t[N + j * (N + 1)];
+        uMiddle[N + j * (N + 1)] = t1[N];
 
         for (int i{static_cast<int>(N) - 1}; i >= 0; --i)
-            uMiddle[i + j * (N + 1)] = s[i + j * (N + 1)] * uMiddle[i + 1 + j * (N + 1)] + t[i + j * (N + 1)];
+            uMiddle[i + j * (N + 1)] = s1[i] * uMiddle[i + 1 + j * (N + 1)] + t1[i];
     }
 
-    for (size_t j{}; j < M + 1; ++j)
-    {
-        uNext[j * (N + 1)] = uExSol[j * (N + 1)];
-        uNext[N + j * (N + 1)] = uExSol[N + j * (N + 1)];
-    }
-
-    for (size_t i{1}; i < M; ++i)
+    for (size_t i{1}; i < N; ++i)
     {
         A = 0.0;
         B = -1.0;
         C = 0.0;
         G = uExSol[i];
 
-        s[i] = C / B;
-        t[i] = - G / B;
+        s2[0] = C / B;
+        t2[0] = - G / B;
 
         for (size_t j{1}; j < M; ++j)
         {
             A = tau * q[i - 1 + (j - 1) * (N - 1)] / (2.0 * hY * hY);
-            B = tau / 2.0 * (q[i - 1 + (j - 1) * (N - 1)] / (hY * hY) + q[i - 1 + j * (N - 1)] / (hY * hY)) + 1.0;
             C = tau * q[i - 1 + j * (N - 1)] / (2.0 * hY * hY);
+            B = A + C + 1.0;
             G = -uMiddle[i + j * (N + 1)] - tau / 2.0 *
                 (p[i + (j - 1) * N] * (uMiddle[i + 1 + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / (hX * hX) - 
                  p[i - 1 + (j - 1) * N] * (uMiddle[i + j * (N + 1)] - uMiddle[i - 1 + j * (N + 1)]) / (hX * hX) +
                  f[i - 1 + (j - 1) * (N - 1)]);
 
-            s[i + j * (N + 1)] = C / (B - A * s[i - 1 + j * (N + 1)]);
-            t[i + j * (N + 1)] = (A * t[i - 1 + j * (N + 1)] - G) / (B - A * s[i - 1 + j * (N + 1)]);
+            gamma = B - A * s2[j - 1];
+            s2[j] = C / gamma;
+            t2[j] = (A * t2[j - 1] - G) / gamma;
         }
 
         A = 0.0;
@@ -120,13 +111,34 @@ void SolutionPoisEq::setParamK()
         C = 0.0;
         G = uExSol[i + M * (N + 1)];
 
-        s[i + M * (N + 1)] = C / (B - A * s[i + (M - 1) * (N + 1)]);
-        t[i + M * (N + 1)] = (A * t[i + (M - 1) * (N + 1)] - G) / (B - A * s[i + (M - 1) * (N + 1)]);
+        gamma = B - A * s2[M - 1];
+        s2[M] = C / gamma;
+        t2[M] = (A * t2[M - 1] - G) / gamma;
 
-        uNext[i + M * (N + 1)] = t[i + M * (N + 1)];
+        uNext[i + M * (N + 1)] = t2[M];
 
         for (int j{static_cast<int>(M) - 1}; j >= 0; --j)
-            uNext[i + j * (N + 1)] = s[i + j * (N + 1)] * uNext[i + (j + 1) * (N + 1)] + t[i + j * (N + 1)];
+            uNext[i + j * (N + 1)] = s2[j] * uNext[i + (j + 1) * (N + 1)] + t2[j];
+    }
+
+    for (size_t i{1}; i < N; ++i)
+    {
+        for (size_t j{1}; j < M; ++j)
+        {
+            // std::cout << 2 * (uNext[i + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / tau -
+            //     (p[i + (j - 1) * N] * (uMiddle[i + 1 + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / (hX * hX) - 
+            //     p[i - 1 + (j - 1) * N] * (uMiddle[i + j * (N + 1)] - uMiddle[i - 1 + j * (N + 1)]) / (hX * hX) +
+            //     q[i - 1 + j * (N - 1)] * (uNext[i + (j + 1) * (N + 1)] - uNext[i + j * (N + 1)]) / (hY * hY) - 
+            //     q[i - 1 + (j - 1) * (N - 1)] * (uNext[i + j * (N + 1)] - uNext[i + (j - 1) * (N + 1)]) / (hY * hY)) -
+            //     f[i - 1 + (j - 1) * (N - 1)] << std::endl;
+
+            // std::cout << 2 * (uMiddle[i + j * (N + 1)] - u[i + j * (N + 1)]) / tau -
+            //     (p[i + (j - 1) * N] * (uMiddle[i + 1 + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / (hX * hX) - 
+            //     p[i - 1 + (j - 1) * N] * (uMiddle[i + j * (N + 1)] - uMiddle[i - 1 + j * (N + 1)]) / (hX * hX) +
+            //     q[i - 1 + j * (N - 1)] * (u[i + (j + 1) * (N + 1)] - u[i + j * (N + 1)]) / (hY * hY) - 
+            //     q[i - 1 + (j - 1) * (N - 1)] * (u[i + j * (N + 1)] - u[i + (j - 1) * (N + 1)]) / (hY * hY)) -
+            //     f[i - 1 + (j - 1) * (N - 1)] << std::endl;
+        }
     }
 }
 
@@ -148,8 +160,22 @@ void SolutionPoisEq::preparing()
 
     uMiddle.resize((N + 1) * (M + 1));
     uNext.resize((N + 1) * (M + 1));
-    s.resize((N + 1) * (M + 1));
-    t.resize((N + 1) * (M + 1));
+    s1.resize((N + 1));
+    t1.resize((N + 1));
+    s2.resize((M + 1));
+    t2.resize((M + 1));
+
+    for (size_t i{}; i < N + 1; ++i)
+    {
+        uMiddle[i] = uExSol[i];
+        uMiddle[i + M * (N + 1)] = uExSol[i + M * (N + 1)];
+    }
+
+    for (size_t j{}; j < M + 1; ++j)
+    {
+        uNext[j * (N + 1)] = uExSol[j * (N + 1)];
+        uNext[N + j * (N + 1)] = uExSol[N + j * (N + 1)];
+    }
 }
 
 void SolutionPoisEq::printHeader() const

@@ -229,38 +229,38 @@ void SolutionEq::printGrid(const std::vector<double>& v) const
         return;
     }
 
-    size_t multi = N / 5;
+    size_t multiX = N / 5, multiY = M / 5;
 
     printf("-----------");
 
-    for (size_t i{}; i <= N / multi; ++i)
+    for (size_t i{}; i <= N / multiX; ++i)
         printf("--------------");
 
     printf("\n|    x\\y  |");
 
-    for (size_t i{}; i <= N / multi; ++i)
-        printf(" %11.2f |", hX * (i * multi));
+    for (size_t i{}; i <= N / multiX; ++i)
+        printf(" %11.2f |", hX * (i * multiX));
 
     printf("\n");
 
-    for (size_t j{}; j <= M / multi; ++j)
+    for (size_t j{}; j <= M / multiY; ++j)
     {
         printf("-----------");
 
-        for (size_t i{}; i <= N / multi; ++i)
+        for (size_t i{}; i <= N / multiX; ++i)
             printf("--------------");
 
-        printf("\n| %7.2f |", hY * (j * multi));
+        printf("\n| %7.2f |", hY * (j * multiY));
 
-        for (size_t i{}; i <= N / multi; ++i)
-            printf(" %11.5f |", v[i * multi + (j * multi) * (N + 1)]);
+        for (size_t i{}; i <= N / multiX; ++i)
+            printf(" %11.5f |", v[i * multiX + (j * multiY) * (N + 1)]);
 
         printf("\n");
     }
 
     printf("-----------");
 
-    for (size_t i{}; i <= N / multi; ++i)
+    for (size_t i{}; i <= N / multiX; ++i)
         printf("--------------");
 }
 

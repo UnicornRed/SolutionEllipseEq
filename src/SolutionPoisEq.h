@@ -12,8 +12,10 @@ protected:
 
     std::vector<double> uMiddle;
     std::vector<double> uNext;
-    std::vector<double> s;
-    std::vector<double> t;
+    std::vector<double> s1;
+    std::vector<double> t1;
+    std::vector<double> s2;
+    std::vector<double> t2;
 public:
     SolutionPoisEq(double _maxX, double _maxY, size_t _N, size_t _M,
                    std::function<double(double, double)> _pFunc,
