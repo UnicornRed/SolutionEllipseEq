@@ -120,26 +120,6 @@ void SolutionPoisEq::setParamK()
         for (int j{static_cast<int>(M) - 1}; j >= 0; --j)
             uNext[i + j * (N + 1)] = s2[j] * uNext[i + (j + 1) * (N + 1)] + t2[j];
     }
-
-    for (size_t i{1}; i < N; ++i)
-    {
-        for (size_t j{1}; j < M; ++j)
-        {
-            // std::cout << 2 * (uNext[i + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / tau -
-            //     (p[i + (j - 1) * N] * (uMiddle[i + 1 + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / (hX * hX) - 
-            //     p[i - 1 + (j - 1) * N] * (uMiddle[i + j * (N + 1)] - uMiddle[i - 1 + j * (N + 1)]) / (hX * hX) +
-            //     q[i - 1 + j * (N - 1)] * (uNext[i + (j + 1) * (N + 1)] - uNext[i + j * (N + 1)]) / (hY * hY) - 
-            //     q[i - 1 + (j - 1) * (N - 1)] * (uNext[i + j * (N + 1)] - uNext[i + (j - 1) * (N + 1)]) / (hY * hY)) -
-            //     f[i - 1 + (j - 1) * (N - 1)] << std::endl;
-
-            // std::cout << 2 * (uMiddle[i + j * (N + 1)] - u[i + j * (N + 1)]) / tau -
-            //     (p[i + (j - 1) * N] * (uMiddle[i + 1 + j * (N + 1)] - uMiddle[i + j * (N + 1)]) / (hX * hX) - 
-            //     p[i - 1 + (j - 1) * N] * (uMiddle[i + j * (N + 1)] - uMiddle[i - 1 + j * (N + 1)]) / (hX * hX) +
-            //     q[i - 1 + j * (N - 1)] * (u[i + (j + 1) * (N + 1)] - u[i + j * (N + 1)]) / (hY * hY) - 
-            //     q[i - 1 + (j - 1) * (N - 1)] * (u[i + j * (N + 1)] - u[i + (j - 1) * (N + 1)]) / (hY * hY)) -
-            //     f[i - 1 + (j - 1) * (N - 1)] << std::endl;
-        }
-    }
 }
 
 double SolutionPoisEq::nextUk(size_t i, size_t j)
