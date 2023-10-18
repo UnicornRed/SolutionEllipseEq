@@ -1,13 +1,14 @@
 #include <iostream>
 #include <string>
 #include "SolutionEllipseEq.h"
+#include "SolutionPoisEq.h"
 
 double pCoeff(double x, double y)
 {
     return 3 * x + 2;
 }
 
-// double pCoeff1(double x, double y)
+// double pCoeff(double x, double y)
 // {
 //     return 1;
 // }
@@ -22,7 +23,7 @@ double fParam(double x, double y)
     return -x * x * (2 + 6 * y) - (12 * x + 4) * y * y * (1 + y);
 }
 
-// double fParam1(double x, double y)
+// double fParam(double x, double y)
 // {
 //     return -2 * y * y - 2 * y * y * y - 2 * x * x - 6 * x * x * y;
 // }
@@ -32,33 +33,19 @@ double uExactSolution(double x, double y)
     return x * x * y * y * (1 + y);
 }
 
-void WorkWithMethod(SolutionEllipseEq& MyEq)
+void WorkWithMethod(SolutionEq& MyEq)
 {
     MyEq.preparing();
 
-    std::cout << MyEq.getNameMethod() << ". Variant 14.\n" << std::endl;
-
-    std::cout << "1. Measure of approximation: ||F-AU_*|| = " << MyEq.ApproxMeasure(MyEq.getUExSol()) << "\n" << std::endl;
-
-    std::cout << "2. Discrepancy norm for U^0:  ||F-AU^0|| = " << MyEq.ApproxMeasure(MyEq.getU0()) << "\n" << std::endl;
-
-    std::cout << "3. Number of iterations:  m = " << MyEq.get_m() << "\n" << std::endl;
-
-    std::cout << "4. Spectral radius:  rho(H) = " << MyEq.getRo() << "\n" << std::endl;
-
-    std::cout << " ------------------------------------------------------------------------------------------------------------------------------\n" <<
-                 " |  5.1  |      5.2      |       5.3      |       5.4      |       5.5      |       5.6       |      5.7      |       5.8     |\n" <<
-                 " ------------------------------------------------------------------------------------------------------------------------------\n" <<
-                 " |   k   |   ||F-AU^k||  |     rel.d.     |  ||U^k - U_*|| |    rel.error   | ||U^k-U^(k-1)|| |   apost.est.  |    sp.rad._k  |\n" <<
-                 " ------------------------------------------------------------------------------------------------------------------------------\n";
+    MyEq.printHeader();
 
     while (!MyEq.Next())
     {
         if (MyEq.getK() < 5 || MyEq.getK() % MyEq.getN() == 0)
-            MyEq.printInfoLine(" | %5lu | %13.6f | %14.6f | %14.6f | %14.6f | %15.6f | %13.6f | %13.6f |\n");
+            MyEq.printInfoLine();
     }
 
-    MyEq.printInfoLine(" | %5lu | %13.6f | %14.6f | %14.6f | %14.6f | %15.6f | %13.6f | %13.6f |\n");
+    MyEq.printInfoLine();
 
     std::cout << "\n\nApproximate solution:" << std::endl;
 
@@ -71,7 +58,7 @@ void WorkWithMethod(SolutionEllipseEq& MyEq)
     std::cout << std::endl << std::endl;
 }
 
-void AnalysisMethod(const std::vector<SolutionEllipseEq*> EqMethods, const std::vector<std::pair<int, int>> grid)
+void AnalysisMethod(const std::vector<SolutionEq*> EqMethods, const std::vector<std::pair<int, int>> grid)
 {
     const int widthCol[] = {50, 4, 4, 20};
     char helpStr[widthCol[3]];
@@ -172,6 +159,12 @@ int main()
 
     WorkWithMethod(MyEqCA);
 
+    // Метод переменных направлений
+
+    SolutionPoisEq MyEqPS(maxX, maxY, N, M, pCoeff, qCoeff, fParam, uExactSolution, epsilon);
+
+    WorkWithMethod(MyEqPS);
+
     size_t numGrid;
     std::vector<std::pair<int, int>> grid;
 
@@ -181,7 +174,7 @@ int main()
     for (size_t i{}; i < numGrid; ++i)
         std::cin >> grid[i].first >> grid[i].second;
 
-    AnalysisMethod({&MyEqSI, &MyEqOP, &MyEqSM, &MyEqUR, &MyEqCP, &MyEqAT, &MyEqCA}, grid);
+    AnalysisMethod({&MyEqSI, &MyEqOP, &MyEqSM, &MyEqUR, &MyEqCP, &MyEqAT, &MyEqCA, &MyEqPS}, grid);
 
     return 0;
 }
